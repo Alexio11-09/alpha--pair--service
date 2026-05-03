@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpha‑XMD Session</title>
+<style>
+  body { font-family: Arial; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  .container { background: #1e293b; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; }
+  input { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; }
+  button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; }
+  #result { margin-top: 20px; font-size: 22px; font-weight: bold; }
+  #error { color: #ef4444; margin-top: 10px; }
+</style></head>
+<body>
+<div class="container">
+  <h2>🔐 Alpha‑XMD Session</h2>
+  <p>Enter your WhatsApp number (with country code)</p>
+  <input id="number" placeholder="e.g. 263786641436" />
+  <button onclick="getPair()">Get Pairing Code</button>
+  <div id="result"></div>
+  <div id="error"></div>
+</div>
+<script>
+async function getPair() {
+    const number = document.getElementById('number').value.replace(/[^0-9]/g, '');
+    if (number.length < 10) {
+        document.getElementById('error').textContent = 'Invalid number';
+        return;
+    }
+    document.getElementById('error').textContent = '';
+    document.getElementById('result').textContent = '⏳ Generating...';
+    try {
+        const res = await fetch('/api/pair', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ number })
+        });
+        const data = await res.json();
+        if (data.error) {
+            document.getElementById('error').textContent = '❌ ' + data.error;
+            document.getElementById('result').textContent = '';
+        } else {
+            document.getElementById('result').innerHTML = `✅ Code: <b>${data.code}</b>`;
+        }
+    } catch (err) {
+        document.getElementById('error').textContent = '❌ Request failed';
+        document.getElementById('result').textContent = '';
+    }
+}
+</script>
+</body>
+</html>
